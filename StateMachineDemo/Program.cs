@@ -5,40 +5,43 @@ using Utils;
 
 namespace StateMachineDemo
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             var services = new ServiceCollection();
 
             services.AddLogging(builder => builder.AddConsole())
                 .AddSingleton<DemoStateMachine>();
 
-            using (var serviceProvider = services.BuildServiceProvider())
+            using var serviceProvider = services.BuildServiceProvider();
+            var stateMachine = serviceProvider.GetService<DemoStateMachine>();
+
+            Console.WriteLine("enter commands to transition states");
+            
+            Console.WriteLine("- initialise");
+            Console.WriteLine("- finish");
+            Console.WriteLine("- done");
+            
+            while (true)
             {
-                var stateMachine = serviceProvider.GetService<DemoStateMachine>();
+                var command = Console.ReadLine();
 
-                while (true)
+                if (Enum.TryParse<StateMachineBaseCommand>(command, true, out var cmd))
                 {
-                    Console.Write("Command: ");
-                    var command = Console.ReadLine();
-
-                    if (Enum.TryParse<StateMachineBaseCommand>(command, true, out var cmd))
-                    {
-                        if(cmd == StateMachineBaseCommand.Cancel)
-                            stateMachine.Cancel();
-                        stateMachine.EnqueueTransition(cmd);
-                    }
+                    if(cmd == StateMachineBaseCommand.Cancel)
+                        stateMachine.Cancel();
+                    stateMachine.EnqueueTransition(cmd);
+                }
                     
-                    if (Enum.TryParse<Command>(command, true, out var cmd2))
-                    {
-                        stateMachine.EnqueueTransition(cmd2);
-                    }
+                if (Enum.TryParse<Command>(command, true, out var cmd2))
+                {
+                    stateMachine.EnqueueTransition(cmd2);
+                }
 
-                    if (string.Equals(command, "exit", StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        break;
-                    }
+                if (string.Equals(command, "exit", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    break;
                 }
             }
         }

@@ -39,8 +39,8 @@ namespace Utils
         private CancellationTokenSource transitionCts = new CancellationTokenSource();
         
         private readonly BlockingCollection<TransitionCommand> commandQueue = new BlockingCollection<TransitionCommand>();
-        private readonly object commandEnqueueLock = new object();
-        private readonly object commandDequeueLock = new object();
+        private readonly Lock commandEnqueueLock = new Lock();
+        private readonly Lock commandDequeueLock = new Lock();
 
         protected StateMachineBase(ILogger<StateMachineBase> logger)
         {
